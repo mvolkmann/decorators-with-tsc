@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": false,
+    "lib": ["ES2022", "DOM", "Decorators"],
+    "module": "ES2022",
+    //"moduleResolution": "NodeNext",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ES2022",
+    "useDefineForClassFields": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
