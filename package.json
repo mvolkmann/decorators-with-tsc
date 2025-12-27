@@ -3,6 +3,7 @@
   "main": "src/demo.ts",
   "scripts": {
     "build": "tsc",
+    "clean": "rm -rf dist",
     "run": "node dist/demo.js"
   },
   "type": "module",

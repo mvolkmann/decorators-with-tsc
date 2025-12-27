@@ -1,16 +1,10 @@
 {
   "compilerOptions": {
-    "experimentalDecorators": false,
-    "lib": ["ES2022", "DOM", "Decorators"],
-    "module": "ES2022",
-    //"moduleResolution": "NodeNext",
+    // Including "DOM" gives access to console methods.
+    "lib": ["ES2022", "DOM"],
     "outDir": "./dist",
-    "rootDir": "./src",
-    "skipLibCheck": true,
+    "skipLibCheck": true, // avoids "Cannot find namespace 'JSX'"
     "strict": true,
-    "target": "ES2022",
-    "useDefineForClassFields": true
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+    "target": "ES2022" // "ESNext" does not work with decorators!
+  }
 }
