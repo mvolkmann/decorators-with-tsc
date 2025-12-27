@@ -51,7 +51,7 @@ export class MyClass {
 let mc = new MyClass();
 mc.increment();
 mc.increment();
-//mc.logCount();
+mc.logCount();
 mc = new MyClass();
 mc = new MyClass();
 console.log("MyClass.instanceCount =", (MyClass as any).instanceCount);
