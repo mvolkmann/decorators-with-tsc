@@ -1,6 +1,5 @@
 {
   "name": "tsc",
-  "main": "src/demo.ts",
   "type": "module",
   "scripts": {
     "build": "tsc",
