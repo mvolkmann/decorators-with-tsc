@@ -78,8 +78,8 @@ export function logAccess(
   };
 }
 
-export function timeMethod(
-  originalMethod: (...args: any[]) => any,
+export function timeMethod<This, Return>(
+  originalMethod: (this: This, ...args: any[]) => Return,
   { kind, name }: ClassMethodDecoratorContext
 ) {
   if (kind !== "method") {
@@ -87,7 +87,7 @@ export function timeMethod(
   }
   const nameString = String(name); // name is a Symbol
 
-  return function (this: unknown, ...args: any[]) {
+  return function (this: This, ...args: any[]): Return {
     console.time(nameString);
     const result = originalMethod.call(this, ...args);
     console.timeEnd(nameString);
