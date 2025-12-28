@@ -6,7 +6,7 @@ import {
   logInstanceCreation,
   rangeValidation,
   timeMethod,
-} from "./decorators";
+} from "./decorators.js";
 //} from "./decorators.ts"; // use this line when running "deno demo.ts"
 
 @logInstanceCreation

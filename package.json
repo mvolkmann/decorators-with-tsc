@@ -1,12 +1,12 @@
 {
   "name": "tsc",
   "main": "src/demo.ts",
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
     "run": "node dist/demo.js"
   },
-  "type": "module",
   "devDependencies": {
     "typescript": "^5.9.3"
   }
