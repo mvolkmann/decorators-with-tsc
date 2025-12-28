@@ -60,15 +60,37 @@ console.log("MyClass.instanceCount =", (MyClass as any).instanceCount);
 @countInstances
 export class Dog {
   name = "";
+
+  @logAccess
   @rangeValidation(0, 20)
   accessor age = 0;
+
   constructor(name: string) {
     this.name = name;
   }
 }
+
+const dog = new Dog("Comet");
+dog.age = 5;
+console.log(dog.age);
+
 const comet = new Dog("Comet");
 const dogs = [new Dog("Ramsay"), new Dog("Oscar"), comet, new Dog("Greta")];
 console.log("dogs.length =", dogs.length);
 console.log("Dog.instanceCount =", (Dog as any).instanceCount);
 comet.age = 5;
 //comet.age = 50;
+
+function fib(n: number): number {
+  if (n <= 1) return n;
+  return fib(n - 1) + fib(n - 2);
+}
+
+class MathLab {
+  @timeMethod
+  static fibonacci(n: number): number {
+    return fib(n);
+  }
+}
+
+console.log("fibonacci(20) =", MathLab.fibonacci(20));
