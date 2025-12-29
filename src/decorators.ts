@@ -19,7 +19,7 @@ export function countInstances<T extends new (...args: any[]) => {}>(
   };
 }
 
-export function logContext(target: any, context: any) {
+export function logContext(target: any, context: DecoratorContext) {
   console.log("===");
   console.log(context.name, "is a", target.constructor.name);
   console.log("context =", context);
@@ -54,9 +54,9 @@ export function logInitialFieldValue(
   console.log(`The initial value of the ${nameString} property is "${value}".`);
 }
 
-export function logAccess(
-  target: any,
-  { kind, name }: ClassAccessorDecoratorContext
+export function logAccess<This, Value>(
+  target: ClassAccessorDecoratorTarget<This, Value>,
+  { kind, name }: ClassAccessorDecoratorContext<This, Value>
 ) {
   if (kind !== "accessor") {
     throw new Error(
@@ -66,12 +66,12 @@ export function logAccess(
   }
   const nameString = String(name); // name is a Symbol
   return {
-    get() {
+    get(this: This) {
       const value = target.get.call(this);
       console.log(`Getting ${nameString} property value ${value}.`);
       return value;
     },
-    set(value: unknown) {
+    set(this: This, value: Value) {
       console.log(`Setting ${nameString} property to ${value}.`);
       target.set.call(this, value);
     },
@@ -80,7 +80,7 @@ export function logAccess(
 
 export function timeMethod<This, Return>(
   originalMethod: (this: This, ...args: any[]) => Return,
-  { kind, name }: ClassMethodDecoratorContext
+  { kind, name }: ClassMethodDecoratorContext<This>
 ) {
   if (kind !== "method") {
     throw new Error("This decorator can only be applied to a method.");
@@ -96,20 +96,27 @@ export function timeMethod<This, Return>(
 }
 
 export function rangeValidation(min: number, max: number) {
-  return (target: any, context: ClassAccessorDecoratorContext) => {
-    let value: number;
+  return function <This, Value extends number>(
+    target: ClassAccessorDecoratorTarget<This, Value>,
+    context: ClassAccessorDecoratorContext<This, Value>
+  ): ClassAccessorDecoratorResult<This, Value> {
+    function validate(newValue: Value) {
+      if (newValue < min || newValue > max) {
+        const name = String(context.name);
+        throw new Error(
+          `${name} ${newValue} is outside range ${min} to ${max}`
+        );
+      }
+      return newValue;
+    }
+
     return {
-      get() {
-        return value;
+      init(initialValue: Value): Value {
+        return validate(initialValue);
       },
-      set(newValue: number) {
-        if (newValue < min || newValue > max) {
-          const name = String(context.name);
-          throw new Error(
-            `${name} ${newValue} is outside range ${min} to ${max}`
-          );
-        }
-        value = newValue;
+      set(this: This, newValue: Value) {
+        validate(newValue);
+        target.set.call(this, newValue); // Call the original underlying setter
       },
     };
   };

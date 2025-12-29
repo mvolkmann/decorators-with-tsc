@@ -4,7 +4,7 @@
   "scripts": {
     "build": "tsc",
     "clean": "rimraf dist",
-    "run": "node dist/demo.js"
+    "start": "node dist/demo.js"
   },
   "devDependencies": {
     "rimraf": "^6.1.2",

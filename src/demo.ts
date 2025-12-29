@@ -71,15 +71,15 @@ export class Dog {
 }
 
 const dog = new Dog("Comet");
+console.log(dog.age);
 dog.age = 5;
 console.log(dog.age);
+//dog.age = 50; // This throws.
 
 const comet = new Dog("Comet");
 const dogs = [new Dog("Ramsay"), new Dog("Oscar"), comet, new Dog("Greta")];
 console.log("dogs.length =", dogs.length);
 console.log("Dog.instanceCount =", (Dog as any).instanceCount);
-comet.age = 5;
-//comet.age = 50;
 
 function fib(n: number): number {
   if (n <= 1) return n;
