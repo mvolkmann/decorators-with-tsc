@@ -1,11 +1,20 @@
 import {
+  accessorLog,
   countInstances,
+  fieldLog,
+  initializerDemo,
   logAccess,
   logContext,
   logInitialFieldValue,
   logInstanceCreation,
+  minLength,
+  nonNegative,
+  range,
   rangeValidation,
+  regex,
+  required,
   timeMethod,
+  validate,
 } from "./decorators.js";
 //} from "./decorators.ts"; // use this line when running "deno demo.ts"
 
@@ -16,6 +25,15 @@ export class MyClass {
   //@logContext
   @logInitialFieldValue
   sport = "football";
+
+  // The "accessor" keyword create auto-accessors.
+  // It is defined in the TC39 "Decorators" proposal
+  // which is at stage 3 as of 12/23/2025.
+  // See https://github.com/tc39/proposal-decorators#class-auto-accessors.
+  //@logContext
+  @initializerDemo
+  @logAccess
+  accessor count = 0;
 
   #foo = 1;
 
@@ -28,14 +46,6 @@ export class MyClass {
   set foo(value) {
     this.#foo = value;
   }
-
-  // The "accessor" keyword create auto-accessors.
-  // It is defined in the TC39 "Decorators" proposal
-  // which is at stage 3 as of 12/23/2025.
-  // See https://github.com/tc39/proposal-decorators#class-auto-accessors.
-  //@logContext
-  @logAccess
-  accessor count = 0;
 
   //@logContext
   @timeMethod
@@ -94,3 +104,91 @@ class MathLab {
 }
 
 console.log("fibonacci(20) =", MathLab.fibonacci(20));
+
+class SignupForm {
+  @required
+  @minLength(8)
+  username = "";
+
+  constructor(username: string) {
+    this.username = username;
+  }
+}
+
+/*
+const badAttempt = new SignupForm("abc");
+console.log(validate(badAttempt));
+// { valid: false, errors: ["username must be at least 8 characters"] }
+
+const goodAttempt = new SignupForm("super_secure_user");
+console.log(validate(goodAttempt));
+// { valid: true, errors: [] }
+*/
+
+export class Residence {
+  @required
+  @minLength(3)
+  accessor city = "";
+
+  @regex("^[0-9]{5}$")
+  accessor zip = "";
+
+  @range(0, 100)
+  @accessorLog
+  accessor years = 0;
+
+  @fieldLog
+  //#secret = "mystery";
+  secret = "random";
+}
+
+const residence = new Residence();
+residence.years = -3;
+console.log(validate(residence));
+console.log("demo.ts : residence.secret =", residence.secret);
+
+residence.city = "St. Charles";
+residence.zip = "63304";
+residence.years = 27;
+console.log(validate(residence));
+
+/*
+const { valid, errors } = validate(residence);
+if (valid) {
+  console.log("valid residence");
+} else {
+  console.log("invalid residence", errors);
+}
+*/
+
+class Game {
+  #name = "";
+  #score = 0;
+
+  get name() {
+    return this.#name;
+  }
+
+  /* Can only be applied to a setter.
+  @nonNegative
+   */
+  get score() {
+    return this.#score;
+  }
+
+  /* Can't be applied to a setter for a property that is not a number.
+  @nonNegative
+   */
+  set name(value) {
+    this.#name = value;
+  }
+
+  @nonNegative
+  set score(value) {
+    this.#score = value;
+  }
+}
+
+const game = new Game();
+game.score = 7; // works
+game.score = -1; // throws
