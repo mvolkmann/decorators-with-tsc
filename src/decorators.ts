@@ -1,6 +1,6 @@
-export function countInstances<T extends new (...args: any[]) => {}>(
-  target: T,
-  { kind }: ClassDecoratorContext<T>
+export function countInstances<Value extends new (...args: any[]) => {}>(
+  target: Value,
+  { kind }: ClassDecoratorContext<Value>
 ) {
   if (kind !== "class") {
     throw new Error("This decorator can only be applied to a class.");
@@ -138,14 +138,13 @@ export function rangeValidation(min: number, max: number) {
 }
 
 export function timeMethod<This, Return>(
-  originalMethod: (this: This, ...args: any[]) => Return,
+  originalMethod: (...args: any[]) => Return,
   { kind, name }: ClassMethodDecoratorContext<This>
 ) {
   if (kind !== "method") {
     throw new Error("This decorator can only be applied to a method.");
   }
   const nameString = String(name); // name is a Symbol
-
   return function (this: This, ...args: any[]): Return {
     console.time(nameString);
     const result = originalMethod.call(this, ...args);
