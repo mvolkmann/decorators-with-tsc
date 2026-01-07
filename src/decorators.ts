@@ -26,7 +26,7 @@ export function initializerDemo<This, Value>(
   if (context.kind !== "accessor") {
     throw new Error(
       "This decorator can only be applied to " +
-        'a property with the "accessor" keyword.'
+        'a field with the "accessor" keyword.'
     );
   }
 
@@ -45,18 +45,18 @@ export function logAccess<This, Value>(
   if (kind !== "accessor") {
     throw new Error(
       "This decorator can only be applied to " +
-        'a property with the "accessor" keyword.'
+        'a field with the "accessor" keyword.'
     );
   }
   const nameString = String(name); // name is a Symbol
   return {
     get(this: This) {
       const value = target.get.call(this);
-      console.log(`Getting ${nameString} property value ${value}.`);
+      console.log(`Getting ${nameString} field value ${value}.`);
       return value;
     },
     set(this: This, value: Value) {
-      console.log(`Setting ${nameString} property to ${value}.`);
+      console.log(`Setting ${nameString} field to ${value}.`);
       target.set.call(this, value);
     },
   };
@@ -76,7 +76,7 @@ export function logInitialFieldValue(
     throw new Error("This decorator can only be applied to a class field.");
   }
   const nameString = String(name); // name is a Symbol
-  console.log(`The initial value of the ${nameString} property is "${value}".`);
+  console.log(`The initial value of the ${nameString} field is "${value}".`);
 }
 
 // The generic type T captures the type of the class being decorated.
@@ -249,7 +249,7 @@ export function accessorLog<This, Value>(
   if (context.kind !== "accessor") {
     throw new Error(
       "This decorator can only be applied to " +
-        'a property with the "accessor" keyword.'
+        'a field with the "accessor" keyword.'
     );
   }
 

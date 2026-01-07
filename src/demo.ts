@@ -185,6 +185,11 @@ class Game {
 
   @nonNegative
   set score(value) {
+    /*
+    if (value < 0) {
+      throw new Error(`score cannot be negative`);
+    }
+    */
     this.#score = value;
   }
 }
