@@ -161,7 +161,7 @@ type ValidationRule = {
   message: string;
 };
 
-function accessorOrField(context: DecoratorContext) {
+function fieldOrAccessor(context: DecoratorContext) {
   const { kind } = context;
   if (kind !== "accessor" && kind !== "field") {
     throw new Error(
@@ -181,7 +181,7 @@ function addValidationRule(context: DecoratorContext, rule: ValidationRule) {
 
 export function minLength(len: number) {
   return (_target: unknown, context: DecoratorContext) => {
-    accessorOrField(context);
+    fieldOrAccessor(context);
     addValidationRule(context, {
       validate: (v) => typeof v === "string" && v.length >= len,
       message: `${String(context.name)} must be at least ${len} characters`,
@@ -191,7 +191,7 @@ export function minLength(len: number) {
 
 export function range(min: number, max: number) {
   return (target: unknown, context: DecoratorContext) => {
-    accessorOrField(context);
+    fieldOrAccessor(context);
     const name = String(context.name);
     addValidationRule(context, {
       validate: (v) => min <= v && v <= max,
@@ -202,7 +202,7 @@ export function range(min: number, max: number) {
 
 export function regex(pattern: string) {
   return (_target: unknown, context: ClassAccessorDecoratorContext) => {
-    accessorOrField(context);
+    fieldOrAccessor(context);
     addValidationRule(context, {
       validate: (v) => new RegExp(pattern).test(v),
       message: `${String(context.name)} must match pattern ${pattern}`,
@@ -211,7 +211,7 @@ export function regex(pattern: string) {
 }
 
 export function required(_target: unknown, context: DecoratorContext) {
-  accessorOrField(context);
+  fieldOrAccessor(context);
   addValidationRule(context, {
     validate: (v: unknown) => v !== undefined && v !== null && v !== "",
     message: `${String(context.name)} is required`,
