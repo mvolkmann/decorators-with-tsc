@@ -161,8 +161,7 @@ type ValidationRule = {
   message: string;
 };
 
-function fieldOrAccessor(context: DecoratorContext) {
-  const { kind } = context;
+function fieldOrAccessor({ kind }: DecoratorContext) {
   if (kind !== "accessor" && kind !== "field") {
     throw new Error(
       "This decorator can only be applied to a class accessor or field."
