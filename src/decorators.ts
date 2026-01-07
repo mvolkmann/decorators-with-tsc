@@ -179,7 +179,7 @@ function addValidationRule(context: DecoratorContext, rule: ValidationRule) {
 }
 
 export function minLength(len: number) {
-  return (_target: unknown, context: DecoratorContext) => {
+  return (target: unknown, context: DecoratorContext) => {
     fieldOrAccessor(context);
     addValidationRule(context, {
       validate: (v) => typeof v === "string" && v.length >= len,
@@ -191,16 +191,15 @@ export function minLength(len: number) {
 export function range(min: number, max: number) {
   return (target: unknown, context: DecoratorContext) => {
     fieldOrAccessor(context);
-    const name = String(context.name);
     addValidationRule(context, {
       validate: (v) => min <= v && v <= max,
-      message: `${name} must be between ${min} and ${max}`,
+      message: `${String(context.name)} must be between ${min} and ${max}`,
     });
   };
 }
 
 export function regex(pattern: string) {
-  return (_target: unknown, context: ClassAccessorDecoratorContext) => {
+  return (target: unknown, context: ClassAccessorDecoratorContext) => {
     fieldOrAccessor(context);
     addValidationRule(context, {
       validate: (v) => new RegExp(pattern).test(v),
@@ -209,7 +208,7 @@ export function regex(pattern: string) {
   };
 }
 
-export function required(_target: unknown, context: DecoratorContext) {
+export function required(target: unknown, context: DecoratorContext) {
   fieldOrAccessor(context);
   addValidationRule(context, {
     validate: (v: unknown) => v !== undefined && v !== null && v !== "",
