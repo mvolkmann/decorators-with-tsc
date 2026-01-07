@@ -182,7 +182,7 @@ export function minLength(len: number) {
   return (target: unknown, context: DecoratorContext) => {
     fieldOrAccessor(context);
     addValidationRule(context, {
-      validate: (v) => typeof v === "string" && v.length >= len,
+      validate: (v: string) => v.length >= len,
       message: `${String(context.name)} must be at least ${len} characters`,
     });
   };
@@ -192,7 +192,7 @@ export function range(min: number, max: number) {
   return (target: unknown, context: DecoratorContext) => {
     fieldOrAccessor(context);
     addValidationRule(context, {
-      validate: (v) => min <= v && v <= max,
+      validate: (v: number) => min <= v && v <= max,
       message: `${String(context.name)} must be between ${min} and ${max}`,
     });
   };
@@ -202,7 +202,7 @@ export function regex(pattern: string) {
   return (target: unknown, context: ClassAccessorDecoratorContext) => {
     fieldOrAccessor(context);
     addValidationRule(context, {
-      validate: (v) => new RegExp(pattern).test(v),
+      validate: (v: string) => new RegExp(pattern).test(v),
       message: `${String(context.name)} must match pattern ${pattern}`,
     });
   };
