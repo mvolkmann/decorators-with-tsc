@@ -115,19 +115,17 @@ export function rangeValidation(min: number, max: number) {
     target: ClassAccessorDecoratorTarget<This, Value>,
     context: ClassAccessorDecoratorContext<This, Value>
   ): ClassAccessorDecoratorResult<This, Value> {
-    function validate(newValue: Value) {
-      if (newValue < min || newValue > max) {
+    function validate(value: Value) {
+      if (value < min || value > max) {
         const name = String(context.name);
-        throw new Error(
-          `${name} ${newValue} is outside range ${min} to ${max}`
-        );
+        throw new Error(`${name} ${value} is outside range ${min} to ${max}`);
       }
-      return newValue;
     }
 
     return {
       init(initialValue: Value): Value {
-        return validate(initialValue);
+        validate(initialValue);
+        return initialValue;
       },
       set(this: This, newValue: Value) {
         validate(newValue);
