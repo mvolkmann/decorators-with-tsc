@@ -1,4 +1,7 @@
-# decorators-with-tsc
+# ch04/context-access
 
-This project demonstrates using JavaScript standard decorators
-in TypeScript source files that are compiled with tsc.
+To run this:
+
+1. Enter `npm install`.
+2. Enter `npm run build`.
+3. Enter `npm start`.

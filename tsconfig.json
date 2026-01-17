@@ -1,9 +1,5 @@
 {
   "compilerOptions": {
-    // Add these lines to enable running "deno demo.ts" with no build step.
-    //"allowImportingTsExtensions": true,
-    //"noEmit": true,
-
     // Including "DOM" gives access to console methods.
     "lib": ["ESNext", "DOM"],
     "moduleResolution": "Node",
