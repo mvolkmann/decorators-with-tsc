@@ -1,7 +1,10 @@
 import {
+  accessDemo,
   accessorLog,
   countInstances,
   fieldLog,
+  //getterDemo,
+  //getterMap,
   initializerDemo,
   logAccess,
   logContext,
@@ -13,6 +16,8 @@ import {
   rangeValidation,
   regex,
   required,
+  setterDemo,
+  setterMap,
   timeMethod,
   validate,
 } from "./decorators.js";
@@ -134,7 +139,8 @@ export class Residence {
   accessor zip = "";
 
   @range(0, 100)
-  @accessorLog
+  //@accessorLog
+  //@accessDemo
   accessor years = 0;
 
   @fieldLog
@@ -172,6 +178,7 @@ class Game {
   /* Can only be applied to a setter.
   @nonNegative
    */
+  //@getterDemo
   get score() {
     return this.#score;
   }
@@ -184,6 +191,7 @@ class Game {
   }
 
   @nonNegative
+  @setterDemo
   set score(value) {
     /*
     if (value < 0) {
@@ -195,5 +203,19 @@ class Game {
 }
 
 const game = new Game();
+console.log("score =", game.score);
 game.score = 7; // works
-game.score = -1; // throws
+//game.score = -1; // throws
+console.log("score =", game.score);
+/*
+const getter = getterMap.get("score");
+if (getter) {
+  console.log("score =", getter(game));
+}
+*/
+const setter = setterMap.get("score");
+console.log("demo.ts : setter =", setter);
+if (setter) {
+  setter(game, 8);
+  console.log("score =", game.score);
+}

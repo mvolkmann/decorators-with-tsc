@@ -1,3 +1,77 @@
+class Dummy {
+  private years = 0;
+  constructor(newYears: number) {
+    this.years = newYears;
+  }
+}
+const dummy = new Dummy(8);
+
+export function accessDemo<This, Value>(
+  target: unknown, // not used
+  context:
+    | ClassAccessorDecoratorContext<This, Value>
+    | ClassFieldDecoratorContext<This, Value>
+) {
+  context.addInitializer(function (this: This) {
+    const name = String(context.name);
+    console.log("accessDemo: field name =", name);
+    const { access } = context;
+    console.log("accessDemo: has returns", access.has(this));
+    console.log("accessDemo: this =", JSON.stringify(this));
+    const d = new Date() as Value;
+    console.log("accessDemo: has on dummy returns", access.has(dummy as This));
+
+    let value = access.get(this);
+    console.log("accessDemo: get returns", value);
+
+    console.log("accessDemo: dummy.year initial =", access.get(dummy as This));
+    //console.log("accessDemo: dummy.year =", dummy.years);
+    //console.log("accessDemo: dummy.year =", dummy[name]);
+
+    access.set(this, 7 as Value);
+    value = access.get(this);
+    console.log("accessDemo: get returns", value);
+
+    access.set(dummy as This, 19 as Value);
+    console.log(
+      "accessDemo: dummy.year after set =",
+      access.get(dummy as This)
+    );
+  });
+}
+
+export function accessorLog<This, Value>(
+  target: ClassAccessorDecoratorTarget<This, Value>,
+  context: ClassAccessorDecoratorContext<This, Value>
+) {
+  if (context.kind !== "accessor") {
+    throw new Error(
+      "This decorator can only be applied to " +
+        'a field with the "accessor" keyword.'
+    );
+  }
+
+  const name = String(context.name);
+  return {
+    init(initialValue: Value) {
+      console.log(`${name} initial value is ${initialValue}`);
+      return initialValue;
+    },
+    get(this: This) {
+      //const value = context.access.get(this);
+      const value = target.get.call(this) as Value;
+      console.log(`^^^ ${name} value = ${value}`);
+      return value;
+    },
+    set(this: This, value: Value) {
+      //const oldValue = context.access.get(this);
+      const oldValue = target.get.call(this) as Value;
+      console.log(`${name} changing from "${oldValue}" to "${value}"`);
+      target.set.call(this, value);
+    },
+  };
+}
+
 export function countInstances<Value extends new (...args: any[]) => {}>(
   target: Value,
   { kind }: ClassDecoratorContext<Value>
@@ -17,6 +91,40 @@ export function countInstances<Value extends new (...args: any[]) => {}>(
       return this._instanceCount;
     }
   };
+}
+
+export function fieldLog<This, Value>(
+  target: undefined, // always undefined in field decorators
+  context: ClassFieldDecoratorContext<This, Value>
+) {
+  if (context.kind !== "field") {
+    throw new Error("This decorator can only be applied to a field.");
+  }
+  context.addInitializer(function (this: This) {
+    const name = String(context.name);
+    const initialValue = context.access.get(this);
+    console.log(`${name} initial value is ${initialValue}`);
+    if (initialValue === "random") {
+      context.access.set(this, String(Math.random()) as Value);
+    }
+  });
+}
+
+export const getterMap = new Map<string, (object: any) => any>();
+
+export function getterDemo<This, Value>(
+  target: () => Value,
+  context: ClassGetterDecoratorContext<This>
+) {
+  if (context.kind !== "getter") {
+    throw new Error("This decorator can only be applied to a getter.");
+  }
+  context.addInitializer(function (this: This) {
+    const { get, has } = context.access;
+    console.log(">>> getterDemo: this has =", has(this));
+    console.log(">>> getterDemo: dummy has =", has(dummy as This));
+    getterMap.set(String(context.name), get);
+  });
 }
 
 export function initializerDemo<This, Value>(
@@ -135,18 +243,46 @@ export function rangeValidation(min: number, max: number) {
   };
 }
 
+export const setterMap = new Map<string, (object: any, value: any) => void>();
+export function setterDemo<This, Value>(
+  target: (value: Value) => void,
+  context: ClassSetterDecoratorContext<This>
+) {
+  if (context.kind !== "setter") {
+    throw new Error("This decorator can only be applied to a setter.");
+  }
+  context.addInitializer(function (this: This) {
+    const { has, set } = context.access;
+    console.log(">>> setterDemo: this has =", has(this));
+    console.log(">>> setterDemo: dummy has =", has(dummy as This));
+    setterMap.set(String(context.name), set);
+  });
+}
+
 export function timeMethod<This, Return>(
   originalMethod: (...args: any[]) => Return,
-  { kind, name }: ClassMethodDecoratorContext<This>
+  context: ClassMethodDecoratorContext<This>
 ) {
-  if (kind !== "method") {
+  if (context.kind !== "method") {
     throw new Error("This decorator can only be applied to a method.");
   }
-  const nameString = String(name); // name is a Symbol
+
+  /*
+  context.addInitializer(function (this: This) {
+    console.log("decorators.ts timeMethod: access =", context.access);
+    const { get, has } = context.access;
+    console.log(">>> timeMethod: this has =", has(this));
+    console.log(">>> timeMethod: dummy has =", has(dummy as This));
+    const getter = get(this);
+    console.log(">>> timeMethod: get returns", getter.call(this));
+    getterMap.set(String(context.name), get);
+  });
+  */
+  const name = String(context.name);
   return function (this: This, ...args: any[]): Return {
-    console.time(nameString);
+    console.time(name);
     const result = originalMethod.call(this, ...args);
-    console.timeEnd(nameString);
+    console.timeEnd(name);
     return result;
   };
 }
@@ -221,6 +357,7 @@ export function required(target: unknown, context: DecoratorContext) {
 // rather than each time a field is set.
 export function validate(instance: Record<string, any>) {
   const metadata = instance.constructor[Symbol.metadata] ?? {};
+  console.log("decorators.ts : metadata =", metadata);
   const constraints = metadata["constraints"] ?? {};
   const errors: string[] = [];
   for (const [prop, rules] of Object.entries(constraints)) {
@@ -235,51 +372,4 @@ export function validate(instance: Record<string, any>) {
     valid: errors.length === 0,
     errors,
   };
-}
-
-export function accessorLog<This, Value>(
-  target: ClassAccessorDecoratorTarget<This, Value>,
-  context: ClassAccessorDecoratorContext<This, Value>
-) {
-  if (context.kind !== "accessor") {
-    throw new Error(
-      "This decorator can only be applied to " +
-        'a field with the "accessor" keyword.'
-    );
-  }
-
-  const name = String(context.name);
-  return {
-    init(initialValue: Value) {
-      console.log(`${name} initial value is ${initialValue}`);
-      return initialValue;
-    },
-    get(this: This) {
-      const value = target.get.call(this) as Value;
-      console.log(`${name} value = ${value}`);
-      return value;
-    },
-    set(this: This, value: Value) {
-      const oldValue = context.access.get(this);
-      console.log(`${name} changing from "${oldValue}" to "${value}"`);
-      target.set.call(this, value);
-    },
-  };
-}
-
-export function fieldLog<This, Value>(
-  target: undefined, // always undefined in field decorators
-  context: ClassFieldDecoratorContext<This, Value>
-) {
-  if (context.kind !== "field") {
-    throw new Error("This decorator can only be applied to a field.");
-  }
-  context.addInitializer(function (this: This) {
-    const name = String(context.name);
-    const initialValue = context.access.get(this);
-    console.log(`${name} initial value is ${initialValue}`);
-    if (initialValue === "random") {
-      context.access.set(this, String(Math.random()) as Value);
-    }
-  });
 }
